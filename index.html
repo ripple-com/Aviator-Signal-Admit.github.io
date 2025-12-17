@@ -3,12 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aviator Admin Panel</title>
+    <title>Admin Panel - Suwahas Sathsara</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        /* --- COPYING SAME THEME STYLES --- */
         :root {
             --primary: #00f2ff;
             --secondary: #0051ff;
@@ -20,140 +21,237 @@
             --success: #00ff88;
         }
 
+        * { box-sizing: border-box; }
+        
         body { 
             margin: 0; padding: 0; 
             font-family: 'Poppins', sans-serif; 
             background-color: var(--bg-dark);
-            background-image: linear-gradient(rgba(0, 242, 255, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0, 242, 255, 0.03) 1px, transparent 1px);
+            background-image: 
+                linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
             background-size: 30px 30px;
-            color: var(--text-main); 
+            color: var(--text-main);
             min-height: 100vh;
         }
 
-        /* Container */
-        .container { max-width: 1000px; margin: 0 auto; padding: 20px; }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
 
-        /* Login Card */
-        .login-wrapper {
-            height: 90vh;
+        /* Admin Header */
+        .admin-header {
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-        }
-        
-        .tech-card { 
-            background: var(--card-bg); 
-            border: 1px solid var(--border); 
-            padding: 30px; 
-            border-radius: 15px; 
-            width: 100%; 
-            max-width: 400px; 
-            text-align: center; 
-            box-shadow: 0 0 30px rgba(0, 242, 255, 0.1); 
+            padding: 20px;
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 25px;
+            box-shadow: 0 0 20px rgba(0, 242, 255, 0.1);
         }
 
-        h1, h2 { 
+        h1 {
             font-family: 'Rajdhani', sans-serif;
-            color: var(--primary); 
-            text-transform: uppercase; 
-            margin-bottom: 5px;
+            margin: 0;
+            color: var(--primary);
+            text-transform: uppercase;
+            text-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
+        }
+
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 25px;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+
+        /* Cards */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .card-title {
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 20px;
+            color: var(--primary);
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+            text-transform: uppercase;
         }
 
         /* Inputs */
-        input { 
-            width: 100%; 
-            background: rgba(0, 0, 0, 0.4); 
-            border: 1px solid rgba(255, 255, 255, 0.2); 
-            padding: 12px; 
-            margin-bottom: 15px;
-            border-radius: 5px; 
-            color: white; 
-            outline: none;
-            box-sizing: border-box;
-        }
-        input:focus { border-color: var(--primary); }
-
-        /* Buttons */
-        .btn { 
-            padding: 10px 20px; 
-            border: none; 
-            border-radius: 5px; 
-            cursor: pointer; 
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 12px; color: #8b9bb4; margin-bottom: 5px; font-weight: bold; }
+        
+        .admin-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px;
+            border-radius: 6px;
+            color: white;
             font-family: 'Rajdhani', sans-serif;
-            font-weight: bold; 
-            text-transform: uppercase;
+            font-size: 16px;
+            outline: none;
             transition: 0.3s;
         }
-        .btn-primary { background: var(--secondary); color: white; width: 100%; font-size: 16px; }
-        .btn-primary:hover { background: var(--primary); color: black; }
+        .admin-input:focus { border-color: var(--primary); }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: 0.3s;
+            width: 100%;
+        }
+        .btn-primary { background: linear-gradient(90deg, var(--secondary), #00c3ff); color: white; }
+        .btn-primary:hover { box-shadow: 0 0 15px rgba(0, 242, 255, 0.4); }
         
-        .btn-logout { background: var(--danger); color: white; float: right; font-size: 12px;}
-        
-        /* Table Styles */
-        .dashboard-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border); padding-bottom: 15px; }
-        
-        .user-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
+        .btn-danger { background: rgba(255, 77, 77, 0.15); color: var(--danger); border: 1px solid var(--danger); }
+        .btn-danger:hover { background: var(--danger); color: white; }
+
+        .btn-sm { padding: 5px 10px; font-size: 12px; width: auto; margin-left: 5px; }
+
+        /* Table */
+        .table-responsive { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; }
+        th { color: var(--primary); font-family: 'Rajdhani', sans-serif; text-transform: uppercase; }
+        tr:hover { background: rgba(0, 242, 255, 0.05); }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .status-active { background: rgba(0, 255, 136, 0.2); color: var(--success); }
+        .status-expired { background: rgba(255, 77, 77, 0.2); color: var(--danger); }
+        .status-lifetime { background: rgba(0, 242, 255, 0.2); color: var(--primary); }
+
+        /* Login Modal */
+        #loginOverlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #000; z-index: 1000;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .login-box {
+            width: 350px;
+            background: var(--card-bg);
+            border: 1px solid var(--primary);
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 0 50px rgba(0, 242, 255, 0.2);
         }
 
-        .user-card {
-            background: rgba(13, 22, 36, 0.8);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            padding: 15px;
-            position: relative;
+        /* Notification */
+        #notification {
+            position: fixed; bottom: 20px; right: 20px;
+            background: var(--card-bg);
+            border-left: 4px solid var(--primary);
+            padding: 15px 25px;
+            border-radius: 4px;
+            transform: translateX(200%);
+            transition: 0.5s;
+            z-index: 2000;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
         }
-        .user-card.expired { border-color: var(--danger); }
-        .user-card.active { border-color: var(--success); }
-
-        .user-email { font-weight: bold; color: white; margin-bottom: 5px; word-break: break-all; }
-        .user-status { font-size: 12px; font-family: 'Rajdhani', sans-serif; letter-spacing: 1px; }
-        .status-active { color: var(--success); }
-        .status-expired { color: var(--danger); }
-
-        .action-area { margin-top: 15px; display: flex; gap: 10px; }
-        .btn-action { flex: 1; padding: 8px; font-size: 12px; }
-        .btn-renew { background: rgba(0, 255, 136, 0.2); color: var(--success); border: 1px solid var(--success); }
-        .btn-renew:hover { background: var(--success); color: black; }
-        .btn-delete { background: rgba(255, 77, 77, 0.2); color: var(--danger); border: 1px solid var(--danger); }
-        .btn-delete:hover { background: var(--danger); color: white; }
-
-        #dashboard { display: none; }
-        #loadingMsg { display: none; color: var(--primary); margin-top: 10px; }
+        .show-notif { transform: translateX(0) !important; }
     </style>
 </head>
 <body>
 
-    <div id="loginScreen" class="login-wrapper">
-        <div class="tech-card">
-            <i class="fa-solid fa-user-shield fa-3x" style="color: var(--primary); margin-bottom: 20px;"></i>
-            <h1>Admin Panel</h1>
-            <p style="color: #888; font-size: 12px; margin-bottom: 20px;">AUTHORIZATION REQUIRED</p>
+    <div id="notification">Action Successful</div>
 
-            <input type="email" id="adminEmail" placeholder="Admin Email">
-            <input type="password" id="adminPass" placeholder="Password">
-            
-            <button class="btn btn-primary" onclick="adminLogin()">ACCESS DASHBOARD</button>
-            <div id="loginError" style="color: var(--danger); margin-top: 10px; font-size: 13px;"></div>
+    <div id="loginOverlay">
+        <div class="login-box">
+            <h1>ADMIN ACCESS</h1>
+            <p style="color: #8b9bb4; font-size: 12px; margin-bottom: 20px;">AUTHENTICATION REQUIRED</p>
+            <input type="email" id="adminEmail" class="admin-input" placeholder="Admin Email" style="margin-bottom: 10px;">
+            <input type="password" id="adminPass" class="admin-input" placeholder="Admin Password" style="margin-bottom: 20px;">
+            <button class="btn btn-primary" onclick="adminLogin()">ENTER SYSTEM</button>
+            <p id="loginError" style="color: var(--danger); font-size: 12px; margin-top: 10px; display: none;"></p>
         </div>
     </div>
 
-    <div id="dashboard" class="container">
-        <div class="dashboard-header">
+    <div class="container" id="mainDashboard" style="display: none;">
+        <div class="admin-header">
             <div>
-                <h2>USER MANAGEMENT</h2>
-                <span style="font-size: 12px; color: #888;">Manage Subscriptions & Access</span>
+                <h1>SUWAHAS SATHSARA</h1>
+                <span style="font-size: 12px; color: var(--primary); letter-spacing: 2px;">ADMINISTRATION CONSOLE</span>
             </div>
-            <button class="btn btn-logout" onclick="logout()">LOGOUT <i class="fa-solid fa-power-off"></i></button>
+            <button class="btn btn-danger" style="width: auto;" onclick="logout()">LOGOUT <i class="fa-solid fa-power-off"></i></button>
         </div>
 
-        <div id="loadingMsg"><i class="fa-solid fa-spinner fa-spin"></i> Loading Users from Database...</div>
-        
-        <div id="userGrid" class="user-grid">
+        <div class="dashboard-grid">
+            
+            <div class="card">
+                <div class="card-title"><i class="fa-solid fa-user-plus"></i> Add New User</div>
+                
+                <div class="form-group">
+                    <label>USER EMAIL</label>
+                    <input type="email" id="newUserEmail" class="admin-input" placeholder="client@email.com">
+                </div>
+
+                <div class="form-group">
+                    <label>PASSWORD</label>
+                    <input type="text" id="newUserPass" class="admin-input" placeholder="password123">
+                </div>
+
+                <div class="form-group">
+                    <label>EXPIRY DATE (Leave empty for Lifetime)</label>
+                    <input type="date" id="newUserExpiry" class="admin-input">
+                </div>
+
+                <button class="btn btn-primary" id="btnAddUser" onclick="createUser()">CREATE USER</button>
             </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <div style="display:flex; justify-content:space-between;">
+                        <span><i class="fa-solid fa-users"></i> User Database</span>
+                        <span style="font-size: 14px; color: #8b9bb4;">Total: <span id="userCount" style="color:white;">0</span></span>
+                    </div>
+                </div>
+                
+                <div class="table-responsive">
+                    <table id="userTable">
+                        <thead>
+                            <tr>
+                                <th>Email</th>
+                                <th>Expiry</th>
+                                <th>Status</th>
+                                <th style="text-align: right;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="userTableBody">
+                            <tr><td colspan="4" style="text-align:center; color: #8b9bb4;">Loading Data...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
     </div>
 
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -162,7 +260,7 @@
 
     <script>
         // ========================================================
-        // 🔥 1. ඔයාගේ FIREBASE CONFIG එක මෙතනට දාන්න 🔥
+        // 🔥 CONFIGURATION (Same as Client App)
         // ========================================================
         const firebaseConfig = {
           apiKey: "AIzaSyBmLvGb0vXkJhKVKew1sYZpHuVPo-mHvjk",
@@ -173,156 +271,167 @@
           appId: "1:656549146292:web:f35944e4ae7b6db943f1e1",
           measurementId: "G-B5N5DG523J"
         };
-        // ========================================================
 
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        const db = firebase.firestore();
+        // Initialize Primary App (For Admin Login & DB Access)
+        const app = firebase.initializeApp(firebaseConfig);
+        const auth = app.auth();
+        const db = app.firestore();
 
-        // 🛑 ආරක්ෂාව සඳහා: ඔයාගේ Admin Email එක මෙතන දාන්න
-        const allowedAdmins = ["admin@gmail.com", "suwahas@gmail.com"]; 
+        // Initialize Secondary App (For creating users without logging out Admin)
+        const secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary");
 
-        // Check Login State
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                // Check if user is in allowed list (Optional Client Side Check)
-                // For better security, set up Firestore Rules.
-                document.getElementById("loginScreen").style.display = "none";
-                document.getElementById("dashboard").style.display = "block";
-                loadUsers();
-            } else {
-                document.getElementById("loginScreen").style.display = "flex";
-                document.getElementById("dashboard").style.display = "none";
-            }
-        });
-
+        // --- AUTHENTICATION ---
         function adminLogin() {
-            const email = document.getElementById("adminEmail").value;
-            const pass = document.getElementById("adminPass").value;
-            const err = document.getElementById("loginError");
+            const email = document.getElementById('adminEmail').value;
+            const pass = document.getElementById('adminPass').value;
+            const err = document.getElementById('loginError');
 
             if(!email || !pass) {
-                err.innerText = "Please fill all fields"; return;
-            }
-
-            // Simple client-side admin check
-            if(!allowedAdmins.includes(email)) {
-               // Warning: This allows login but prevents logic if you want. 
-               // Ideally, just let them login and check DB.
-               // For now, allowing login to Firebase.
+                err.style.display = 'block'; err.innerText = "Please enter credentials."; return;
             }
 
             auth.signInWithEmailAndPassword(email, pass)
-            .catch(error => {
-                err.innerText = "Login Failed: " + error.message;
-            });
+                .then((user) => {
+                    document.getElementById('loginOverlay').style.display = 'none';
+                    document.getElementById('mainDashboard').style.display = 'block';
+                    loadUsers();
+                })
+                .catch((error) => {
+                    err.style.display = 'block';
+                    err.innerText = "Login Failed: " + error.message;
+                });
         }
 
         function logout() {
-            auth.signOut();
+            auth.signOut().then(() => location.reload());
         }
 
-        // --- LOAD USERS FROM FIRESTORE ---
-        function loadUsers() {
-            const grid = document.getElementById("userGrid");
-            const loading = document.getElementById("loadingMsg");
-            
-            grid.innerHTML = "";
-            loading.style.display = "block";
+        // --- CREATE USER FUNCTION ---
+        function createUser() {
+            const email = document.getElementById('newUserEmail').value;
+            const pass = document.getElementById('newUserPass').value;
+            const expiry = document.getElementById('newUserExpiry').value;
+            const btn = document.getElementById('btnAddUser');
 
-            db.collection("users").get().then((querySnapshot) => {
-                loading.style.display = "none";
-                
-                if(querySnapshot.empty) {
-                    grid.innerHTML = "<p>No users found in database.</p>";
+            if(!email || !pass) {
+                showNotif("Email and Password required!", true);
+                return;
+            }
+
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> CREATING...';
+
+            // Create user using secondary app so Admin stays logged in
+            secondaryApp.auth().createUserWithEmailAndPassword(email, pass)
+                .then((userCredential) => {
+                    const uid = userCredential.user.uid;
+                    
+                    // Add to Firestore
+                    db.collection("users").doc(uid).set({
+                        email: email,
+                        expiryDate: expiry || null, // null means lifetime
+                        createdAt: new Date().toISOString()
+                    }).then(() => {
+                        showNotif("User Created Successfully!");
+                        // Reset form
+                        document.getElementById('newUserEmail').value = "";
+                        document.getElementById('newUserPass').value = "";
+                        document.getElementById('newUserExpiry').value = "";
+                        btn.innerHTML = "CREATE USER";
+                        
+                        // Sign out the secondary user immediately to keep things clean
+                        secondaryApp.auth().signOut();
+                    });
+                })
+                .catch((error) => {
+                    showNotif("Error: " + error.message, true);
+                    btn.innerHTML = "CREATE USER";
+                });
+        }
+
+        // --- LOAD USERS (REALTIME) ---
+        function loadUsers() {
+            db.collection("users").onSnapshot((snapshot) => {
+                const tbody = document.getElementById('userTableBody');
+                document.getElementById('userCount').innerText = snapshot.size;
+                tbody.innerHTML = "";
+
+                if(snapshot.empty) {
+                    tbody.innerHTML = "<tr><td colspan='4' style='text-align:center; padding:20px;'>No Users Found</td></tr>";
                     return;
                 }
 
-                querySnapshot.forEach((doc) => {
+                snapshot.forEach((doc) => {
                     const data = doc.data();
                     const uid = doc.id;
-                    const email = data.email || "No Email"; // Saving email in doc is recommended
-                    const expiry = data.expiryDate || null;
+                    const expiry = data.expiryDate;
+                    
+                    // Determine Status
+                    let statusHtml = "";
+                    let isExpired = false;
 
-                    // Check if expired
-                    let isExpired = true;
-                    let statusClass = "expired";
-                    let statusText = "NO ACCESS / EXPIRED";
-
-                    if(expiry) {
-                        const today = new Date();
+                    if (!expiry) {
+                        statusHtml = '<span class="status-badge status-lifetime">LIFETIME</span>';
+                    } else {
                         const expDate = new Date(expiry);
-                        if(expDate >= today) {
-                            isExpired = false;
-                            statusClass = "active";
-                            statusText = "VALID UNTIL: " + expiry;
+                        const today = new Date();
+                        if (today > expDate) {
+                            isExpired = true;
+                            statusHtml = '<span class="status-badge status-expired">EXPIRED</span>';
                         } else {
-                            statusText = "EXPIRED ON: " + expiry;
+                            statusHtml = `<span class="status-badge status-active">${expiry}</span>`;
                         }
                     }
 
-                    // Create Card HTML
-                    const card = `
-                        <div class="user-card ${statusClass}">
-                            <div class="user-email"><i class="fa-solid fa-user"></i> ${email}</div>
-                            <div class="user-status ${"status-"+statusClass}">${statusText}</div>
-                            <div style="font-size:10px; color:#555; margin-top:5px;">UID: ${uid}</div>
-                            
-                            <div class="action-area">
-                                <button class="btn btn-action btn-renew" onclick="renewUser('${uid}')">
-                                    <i class="fa-solid fa-calendar-plus"></i> RENEW
-                                </button>
-                                <button class="btn btn-action btn-delete" onclick="deleteUser('${uid}')">
-                                    <i class="fa-solid fa-trash"></i> DELETE
-                                </button>
-                            </div>
-                        </div>
+                    const row = `
+                        <tr>
+                            <td>
+                                <strong>${data.email}</strong><br>
+                                <span style="font-size:10px; color:#8b9bb4;">UID: ${uid}</span>
+                            </td>
+                            <td>
+                                <input type="date" value="${expiry || ''}" id="date-${uid}" 
+                                    style="background:#0b111a; border:1px solid #333; color:white; padding:4px; border-radius:4px;">
+                            </td>
+                            <td>${statusHtml}</td>
+                            <td style="text-align: right;">
+                                <button class="btn btn-primary btn-sm" onclick="updateUser('${uid}')"><i class="fa-solid fa-save"></i></button>
+                                <button class="btn btn-danger btn-sm" onclick="deleteUser('${uid}')"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        </tr>
                     `;
-                    grid.innerHTML += card;
+                    tbody.innerHTML += row;
                 });
-            }).catch((error) => {
-                loading.style.display = "none";
-                alert("Error getting users: " + error.message);
             });
         }
 
-        // --- RENEW USER ---
-        function renewUser(uid) {
-            const newDate = prompt("Enter Expiry Date (YYYY-MM-DD):", new Date().toISOString().split('T')[0]);
-            
-            if (newDate) {
-                // Validate date format slightly
-                if(!newDate.match(/^\d{4}-\d{2}-\d{2}$/)) {
-                    alert("Invalid format! Use YYYY-MM-DD");
-                    return;
-                }
+        // --- UPDATE USER ---
+        function updateUser(uid) {
+            const newDate = document.getElementById(`date-${uid}`).value;
+            // If empty string, convert to null (Lifetime)
+            const updateData = { expiryDate: newDate ? newDate : null };
 
-                db.collection("users").doc(uid).update({
-                    expiryDate: newDate
-                })
-                .then(() => {
-                    alert("User Renewed Successfully!");
-                    loadUsers(); // Refresh list
-                })
-                .catch((error) => {
-                    alert("Error updating: " + error.message);
-                });
-            }
+            db.collection("users").doc(uid).update(updateData)
+                .then(() => showNotif("User Updated!"))
+                .catch((err) => showNotif("Update Failed", true));
         }
 
         // --- DELETE USER ---
         function deleteUser(uid) {
-            if(confirm("Are you sure you want to delete this user data? They will lose access.")) {
+            if(confirm("Are you sure? This will remove Database access. (Auth user remains but cannot login due to code logic)")) {
                 db.collection("users").doc(uid).delete()
-                .then(() => {
-                    loadUsers(); // Refresh list
-                })
-                .catch((error) => {
-                    alert("Error deleting: " + error.message);
-                });
+                    .then(() => showNotif("User Database Entry Deleted"))
+                    .catch((err) => showNotif("Delete Failed", true));
             }
         }
 
+        // --- UTILS ---
+        function showNotif(msg, isError = false) {
+            const el = document.getElementById('notification');
+            el.innerText = msg;
+            el.style.borderLeftColor = isError ? 'var(--danger)' : 'var(--primary)';
+            el.classList.add('show-notif');
+            setTimeout(() => el.classList.remove('show-notif'), 3000);
+        }
     </script>
 </body>
 </html>
