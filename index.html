@@ -2,14 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Admin Panel - Suwahas Sathsara</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* --- COPYING SAME THEME STYLES --- */
+        /* --- THEME VARIABLES --- */
         :root {
             --primary: #00f2ff;
             --secondary: #0051ff;
@@ -21,7 +21,7 @@
             --success: #00ff88;
         }
 
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         
         body { 
             margin: 0; padding: 0; 
@@ -33,15 +33,17 @@
             background-size: 30px 30px;
             color: var(--text-main);
             min-height: 100vh;
+            overflow-x: hidden; /* Prevent horizontal scroll on body */
         }
 
         .container {
             max-width: 1200px;
             margin: 0 auto;
-            padding: 20px;
+            padding: 15px;
+            padding-bottom: 50px;
         }
 
-        /* Admin Header */
+        /* --- HEADER STYLES --- */
         .admin-header {
             display: flex;
             justify-content: space-between;
@@ -50,7 +52,7 @@
             background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: 12px;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             box-shadow: 0 0 20px rgba(0, 242, 255, 0.1);
         }
 
@@ -59,49 +61,49 @@
             margin: 0;
             color: var(--primary);
             text-transform: uppercase;
+            font-size: 24px;
             text-shadow: 0 0 10px rgba(0, 242, 255, 0.3);
         }
 
-        /* Dashboard Grid */
+        /* --- GRID SYSTEM --- */
         .dashboard-grid {
             display: grid;
-            grid-template-columns: 1fr 2fr;
-            gap: 25px;
+            grid-template-columns: 1fr 2fr; /* Desktop: Side by side */
+            gap: 20px;
         }
 
-        @media (max-width: 768px) {
-            .dashboard-grid { grid-template-columns: 1fr; }
-        }
-
-        /* Cards */
+        /* --- CARDS --- */
         .card {
             background: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: 12px;
-            padding: 25px;
+            padding: 20px;
             box-shadow: 0 0 15px rgba(0, 0, 0, 0.5);
         }
 
         .card-title {
             font-family: 'Rajdhani', sans-serif;
-            font-size: 20px;
+            font-size: 18px;
             color: var(--primary);
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             border-bottom: 1px solid rgba(255,255,255,0.1);
             padding-bottom: 10px;
             text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        /* Inputs */
+        /* --- INPUTS --- */
         .form-group { margin-bottom: 15px; }
-        label { display: block; font-size: 12px; color: #8b9bb4; margin-bottom: 5px; font-weight: bold; }
+        label { display: block; font-size: 11px; color: #8b9bb4; margin-bottom: 5px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;}
         
         .admin-input {
             width: 100%;
             background: rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.1);
             padding: 12px;
-            border-radius: 6px;
+            border-radius: 8px;
             color: white;
             font-family: 'Rajdhani', sans-serif;
             font-size: 16px;
@@ -110,144 +112,216 @@
         }
         .admin-input:focus { border-color: var(--primary); }
 
-        /* Buttons */
+        /* --- BUTTONS --- */
         .btn {
-            padding: 12px 20px;
+            padding: 12px;
             border: none;
-            border-radius: 6px;
+            border-radius: 8px;
             font-family: 'Rajdhani', sans-serif;
             font-weight: 700;
             cursor: pointer;
             text-transform: uppercase;
-            transition: 0.3s;
+            transition: 0.2s;
             width: 100%;
+            font-size: 14px;
+            letter-spacing: 1px;
         }
-        .btn-primary { background: linear-gradient(90deg, var(--secondary), #00c3ff); color: white; }
-        .btn-primary:hover { box-shadow: 0 0 15px rgba(0, 242, 255, 0.4); }
+        .btn:active { transform: scale(0.98); }
         
-        .btn-danger { background: rgba(255, 77, 77, 0.15); color: var(--danger); border: 1px solid var(--danger); }
-        .btn-danger:hover { background: var(--danger); color: white; }
+        .btn-primary { background: linear-gradient(90deg, var(--secondary), #00c3ff); color: white; }
+        .btn-danger { background: rgba(255, 77, 77, 0.1); color: var(--danger); border: 1px solid var(--danger); }
+        
+        .btn-sm { padding: 6px 10px; font-size: 12px; width: auto; margin-left: 5px; display: inline-block;}
 
-        .btn-sm { padding: 5px 10px; font-size: 12px; width: auto; margin-left: 5px; }
-
-        /* Table */
-        .table-responsive { overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { text-align: left; padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 14px; }
-        th { color: var(--primary); font-family: 'Rajdhani', sans-serif; text-transform: uppercase; }
-        tr:hover { background: rgba(0, 242, 255, 0.05); }
+        /* --- TABLE --- */
+        .table-responsive { 
+            overflow-x: auto; 
+            -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+        }
+        
+        table { width: 100%; border-collapse: collapse; min-width: 500px; /* Force scroll on small screens */ }
+        th, td { text-align: left; padding: 12px 8px; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 13px; vertical-align: middle; }
+        th { color: var(--primary); font-family: 'Rajdhani', sans-serif; text-transform: uppercase; white-space: nowrap; }
+        
+        .date-input-table {
+            background: #0b111a;
+            border: 1px solid #333;
+            color: white;
+            padding: 5px;
+            border-radius: 4px;
+            font-family: sans-serif;
+            font-size: 12px;
+            width: 130px;
+        }
 
         .status-badge {
-            padding: 4px 8px;
+            padding: 3px 8px;
             border-radius: 4px;
-            font-size: 10px;
+            font-size: 9px;
             font-weight: bold;
             text-transform: uppercase;
+            white-space: nowrap;
         }
         .status-active { background: rgba(0, 255, 136, 0.2); color: var(--success); }
         .status-expired { background: rgba(255, 77, 77, 0.2); color: var(--danger); }
         .status-lifetime { background: rgba(0, 242, 255, 0.2); color: var(--primary); }
 
-        /* Login Modal */
+        /* --- LOGIN OVERLAY --- */
         #loginOverlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: #000; z-index: 1000;
             display: flex; align-items: center; justify-content: center;
+            padding: 20px;
         }
         .login-box {
-            width: 350px;
+            width: 100%;
+            max-width: 380px;
             background: var(--card-bg);
             border: 1px solid var(--primary);
-            padding: 30px;
+            padding: 30px 20px;
             border-radius: 12px;
             text-align: center;
             box-shadow: 0 0 50px rgba(0, 242, 255, 0.2);
         }
 
-        /* Notification */
+        /* --- NOTIFICATION --- */
         #notification {
-            position: fixed; bottom: 20px; right: 20px;
-            background: var(--card-bg);
-            border-left: 4px solid var(--primary);
-            padding: 15px 25px;
-            border-radius: 4px;
-            transform: translateX(200%);
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: #111;
+            border: 1px solid var(--primary);
+            color: white;
+            padding: 12px 25px;
+            border-radius: 50px;
             transition: 0.5s;
             z-index: 2000;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            white-space: nowrap;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.8);
+            font-size: 13px;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: bold;
         }
-        .show-notif { transform: translateX(0) !important; }
+        .show-notif { transform: translateX(-50%) translateY(0) !important; }
+
+        /* =========================================
+           MOBILE RESPONSIVE RULES
+           ========================================= */
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            
+            /* Stack Grid Columns */
+            .dashboard-grid { grid-template-columns: 1fr; gap: 15px; }
+            
+            /* Header Adjustments */
+            .admin-header { 
+                flex-direction: column; 
+                text-align: center; 
+                gap: 15px;
+            }
+            .admin-header h1 { font-size: 22px; }
+            .admin-header .btn { width: 100%; }
+
+            /* Card Adjustments */
+            .card { padding: 15px; }
+            
+            /* Table Adjustments */
+            th, td { font-size: 12px; padding: 10px 5px; }
+            .btn-sm { padding: 8px 12px; margin: 2px; } /* Bigger touch target */
+            
+            /* Ensure user email doesn't break layout */
+            .user-email-col {
+                max-width: 150px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                display: block;
+            }
+        }
     </style>
 </head>
 <body>
 
-    <div id="notification">Action Successful</div>
+    <div id="notification"><i class="fa-solid fa-check"></i> Action Successful</div>
 
     <div id="loginOverlay">
         <div class="login-box">
-            <h1>ADMIN ACCESS</h1>
-            <p style="color: #8b9bb4; font-size: 12px; margin-bottom: 20px;">AUTHENTICATION REQUIRED</p>
-            <input type="email" id="adminEmail" class="admin-input" placeholder="Admin Email" style="margin-bottom: 10px;">
-            <input type="password" id="adminPass" class="admin-input" placeholder="Admin Password" style="margin-bottom: 20px;">
-            <button class="btn btn-primary" onclick="adminLogin()">ENTER SYSTEM</button>
-            <p id="loginError" style="color: var(--danger); font-size: 12px; margin-top: 10px; display: none;"></p>
+            <h1 style="font-size: 26px;">ADMIN ACCESS</h1>
+            <p style="color: #8b9bb4; font-size: 12px; margin-bottom: 25px; letter-spacing: 1px;">AUTHENTICATION REQUIRED</p>
+            
+            <div class="form-group" style="text-align: left;">
+                <input type="email" id="adminEmail" class="admin-input" placeholder="Admin Email">
+            </div>
+            
+            <div class="form-group" style="text-align: left;">
+                <input type="password" id="adminPass" class="admin-input" placeholder="Password">
+            </div>
+
+            <button class="btn btn-primary" onclick="adminLogin()" style="margin-top: 10px;">ENTER SYSTEM</button>
+            <p id="loginError" style="color: var(--danger); font-size: 12px; margin-top: 15px; display: none; background: rgba(255,0,0,0.1); padding: 10px; border-radius: 6px;"></p>
         </div>
     </div>
 
     <div class="container" id="mainDashboard" style="display: none;">
+        
         <div class="admin-header">
             <div>
                 <h1>SUWAHAS SATHSARA</h1>
-                <span style="font-size: 12px; color: var(--primary); letter-spacing: 2px;">ADMINISTRATION CONSOLE</span>
+                <span style="font-size: 11px; color: var(--primary); letter-spacing: 2px; font-weight: bold;">ADMINISTRATION CONSOLE</span>
             </div>
-            <button class="btn btn-danger" style="width: auto;" onclick="logout()">LOGOUT <i class="fa-solid fa-power-off"></i></button>
+            <button class="btn btn-danger" style="width: auto; padding-left: 20px; padding-right: 20px;" onclick="logout()">
+                LOGOUT <i class="fa-solid fa-power-off"></i>
+            </button>
         </div>
 
         <div class="dashboard-grid">
             
             <div class="card">
-                <div class="card-title"><i class="fa-solid fa-user-plus"></i> Add New User</div>
+                <div class="card-title">
+                    <span><i class="fa-solid fa-user-plus"></i> Add User</span>
+                </div>
                 
                 <div class="form-group">
-                    <label>USER EMAIL</label>
+                    <label>NEW USER EMAIL</label>
                     <input type="email" id="newUserEmail" class="admin-input" placeholder="client@email.com">
                 </div>
 
                 <div class="form-group">
                     <label>PASSWORD</label>
-                    <input type="text" id="newUserPass" class="admin-input" placeholder="password123">
+                    <input type="text" id="newUserPass" class="admin-input" placeholder="Enter Password">
                 </div>
 
                 <div class="form-group">
                     <label>EXPIRY DATE (Leave empty for Lifetime)</label>
-                    <input type="date" id="newUserExpiry" class="admin-input">
+                    <input type="date" id="newUserExpiry" class="admin-input" style="color-scheme: dark;">
                 </div>
 
-                <button class="btn btn-primary" id="btnAddUser" onclick="createUser()">CREATE USER</button>
+                <button class="btn btn-primary" id="btnAddUser" onclick="createUser()">
+                    <i class="fa-solid fa-plus"></i> CREATE ACCOUNT
+                </button>
             </div>
 
             <div class="card">
                 <div class="card-title">
-                    <div style="display:flex; justify-content:space-between;">
-                        <span><i class="fa-solid fa-users"></i> User Database</span>
-                        <span style="font-size: 14px; color: #8b9bb4;">Total: <span id="userCount" style="color:white;">0</span></span>
-                    </div>
+                    <span><i class="fa-solid fa-users"></i> User Database</span>
+                    <span style="font-size: 12px; background: rgba(255,255,255,0.1); padding: 2px 8px; border-radius: 10px;">Total: <span id="userCount">0</span></span>
                 </div>
                 
                 <div class="table-responsive">
                     <table id="userTable">
                         <thead>
                             <tr>
-                                <th>Email</th>
-                                <th>Expiry</th>
+                                <th>User Email</th>
+                                <th>Expiry Set</th>
                                 <th>Status</th>
                                 <th style="text-align: right;">Actions</th>
                             </tr>
                         </thead>
                         <tbody id="userTableBody">
-                            <tr><td colspan="4" style="text-align:center; color: #8b9bb4;">Loading Data...</td></tr>
+                            <tr><td colspan="4" style="text-align:center; color: #8b9bb4; padding: 20px;">Loading Data...</td></tr>
                         </tbody>
                     </table>
+                </div>
+                <div style="text-align: center; font-size: 10px; color: #555; margin-top: 10px;">
+                    <i class="fa-solid fa-arrows-left-right"></i> Scroll table horizontally on mobile
                 </div>
             </div>
 
@@ -260,7 +334,7 @@
 
     <script>
         // ========================================================
-        // 🔥 CONFIGURATION (Same as Client App)
+        // 🔥 CONFIGURATION
         // ========================================================
         const firebaseConfig = {
           apiKey: "AIzaSyBmLvGb0vXkJhKVKew1sYZpHuVPo-mHvjk",
@@ -272,22 +346,19 @@
           measurementId: "G-B5N5DG523J"
         };
 
-        // Initialize Primary App (For Admin Login & DB Access)
         const app = firebase.initializeApp(firebaseConfig);
         const auth = app.auth();
         const db = app.firestore();
-
-        // Initialize Secondary App (For creating users without logging out Admin)
         const secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary");
 
-        // --- AUTHENTICATION ---
+        // --- AUTH ---
         function adminLogin() {
             const email = document.getElementById('adminEmail').value;
             const pass = document.getElementById('adminPass').value;
             const err = document.getElementById('loginError');
 
             if(!email || !pass) {
-                err.style.display = 'block'; err.innerText = "Please enter credentials."; return;
+                err.style.display = 'block'; err.innerText = "Please enter both Email & Password"; return;
             }
 
             auth.signInWithEmailAndPassword(email, pass)
@@ -298,15 +369,17 @@
                 })
                 .catch((error) => {
                     err.style.display = 'block';
-                    err.innerText = "Login Failed: " + error.message;
+                    err.innerText = "Login Failed: " + error.code;
                 });
         }
 
         function logout() {
-            auth.signOut().then(() => location.reload());
+            if(confirm("Exit Admin Panel?")) {
+                auth.signOut().then(() => location.reload());
+            }
         }
 
-        // --- CREATE USER FUNCTION ---
+        // --- CREATE USER ---
         function createUser() {
             const email = document.getElementById('newUserEmail').value;
             const pass = document.getElementById('newUserPass').value;
@@ -314,43 +387,37 @@
             const btn = document.getElementById('btnAddUser');
 
             if(!email || !pass) {
-                showNotif("Email and Password required!", true);
+                showNotif("⚠️ Email & Password Required", true);
                 return;
             }
 
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> CREATING...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> PROCESSING...';
 
-            // Create user using secondary app so Admin stays logged in
             secondaryApp.auth().createUserWithEmailAndPassword(email, pass)
                 .then((userCredential) => {
                     const uid = userCredential.user.uid;
-                    
-                    // Add to Firestore
                     db.collection("users").doc(uid).set({
                         email: email,
-                        expiryDate: expiry || null, // null means lifetime
+                        expiryDate: expiry || null,
                         createdAt: new Date().toISOString()
                     }).then(() => {
-                        showNotif("User Created Successfully!");
-                        // Reset form
+                        showNotif("✅ User Created Successfully!");
                         document.getElementById('newUserEmail').value = "";
                         document.getElementById('newUserPass').value = "";
                         document.getElementById('newUserExpiry').value = "";
-                        btn.innerHTML = "CREATE USER";
-                        
-                        // Sign out the secondary user immediately to keep things clean
+                        btn.innerHTML = '<i class="fa-solid fa-plus"></i> CREATE ACCOUNT';
                         secondaryApp.auth().signOut();
                     });
                 })
                 .catch((error) => {
-                    showNotif("Error: " + error.message, true);
-                    btn.innerHTML = "CREATE USER";
+                    showNotif("❌ Error: " + error.message, true);
+                    btn.innerHTML = '<i class="fa-solid fa-plus"></i> CREATE ACCOUNT';
                 });
         }
 
-        // --- LOAD USERS (REALTIME) ---
+        // --- LOAD USERS ---
         function loadUsers() {
-            db.collection("users").onSnapshot((snapshot) => {
+            db.collection("users").orderBy("createdAt", "desc").onSnapshot((snapshot) => {
                 const tbody = document.getElementById('userTableBody');
                 document.getElementById('userCount').innerText = snapshot.size;
                 tbody.innerHTML = "";
@@ -365,36 +432,31 @@
                     const uid = doc.id;
                     const expiry = data.expiryDate;
                     
-                    // Determine Status
                     let statusHtml = "";
-                    let isExpired = false;
-
                     if (!expiry) {
                         statusHtml = '<span class="status-badge status-lifetime">LIFETIME</span>';
                     } else {
                         const expDate = new Date(expiry);
                         const today = new Date();
                         if (today > expDate) {
-                            isExpired = true;
                             statusHtml = '<span class="status-badge status-expired">EXPIRED</span>';
                         } else {
-                            statusHtml = `<span class="status-badge status-active">${expiry}</span>`;
+                            statusHtml = `<span class="status-badge status-active">ACTIVE</span>`;
                         }
                     }
 
                     const row = `
                         <tr>
                             <td>
-                                <strong>${data.email}</strong><br>
-                                <span style="font-size:10px; color:#8b9bb4;">UID: ${uid}</span>
+                                <span class="user-email-col"><strong>${data.email}</strong></span>
+                                <div style="font-size:9px; color:#555; margin-top:2px;">${uid.substring(0,8)}...</div>
                             </td>
                             <td>
-                                <input type="date" value="${expiry || ''}" id="date-${uid}" 
-                                    style="background:#0b111a; border:1px solid #333; color:white; padding:4px; border-radius:4px;">
+                                <input type="date" value="${expiry || ''}" id="date-${uid}" class="date-input-table">
                             </td>
                             <td>${statusHtml}</td>
-                            <td style="text-align: right;">
-                                <button class="btn btn-primary btn-sm" onclick="updateUser('${uid}')"><i class="fa-solid fa-save"></i></button>
+                            <td style="text-align: right; white-space: nowrap;">
+                                <button class="btn btn-primary btn-sm" onclick="updateUser('${uid}')"><i class="fa-solid fa-check"></i></button>
                                 <button class="btn btn-danger btn-sm" onclick="deleteUser('${uid}')"><i class="fa-solid fa-trash"></i></button>
                             </td>
                         </tr>
@@ -404,31 +466,29 @@
             });
         }
 
-        // --- UPDATE USER ---
+        // --- ACTIONS ---
         function updateUser(uid) {
             const newDate = document.getElementById(`date-${uid}`).value;
-            // If empty string, convert to null (Lifetime)
             const updateData = { expiryDate: newDate ? newDate : null };
 
             db.collection("users").doc(uid).update(updateData)
-                .then(() => showNotif("User Updated!"))
-                .catch((err) => showNotif("Update Failed", true));
+                .then(() => showNotif("✅ Expiry Updated!"))
+                .catch((err) => showNotif("❌ Failed", true));
         }
 
-        // --- DELETE USER ---
         function deleteUser(uid) {
-            if(confirm("Are you sure? This will remove Database access. (Auth user remains but cannot login due to code logic)")) {
+            if(confirm("Delete this user? They will lose access immediately.")) {
                 db.collection("users").doc(uid).delete()
-                    .then(() => showNotif("User Database Entry Deleted"))
-                    .catch((err) => showNotif("Delete Failed", true));
+                    .then(() => showNotif("🗑️ User Deleted"))
+                    .catch((err) => showNotif("❌ Delete Failed", true));
             }
         }
 
-        // --- UTILS ---
         function showNotif(msg, isError = false) {
             const el = document.getElementById('notification');
-            el.innerText = msg;
-            el.style.borderLeftColor = isError ? 'var(--danger)' : 'var(--primary)';
+            el.innerHTML = msg;
+            el.style.border = isError ? '1px solid var(--danger)' : '1px solid var(--success)';
+            el.style.color = isError ? 'var(--danger)' : 'var(--success)';
             el.classList.add('show-notif');
             setTimeout(() => el.classList.remove('show-notif'), 3000);
         }
