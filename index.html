@@ -75,9 +75,18 @@
         .badge { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
         .badge-active { background: rgba(0, 255, 136, 0.15); color: var(--success); border: 1px solid var(--success); }
         .badge-expired { background: rgba(255, 77, 77, 0.15); color: var(--danger); border: 1px solid var(--danger); }
+        
         .btn-action { border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 12px; margin-right: 5px; transition: 0.2s; }
         .btn-edit { background: var(--secondary); color: white; }
         .btn-delete { background: rgba(255,0,0,0.2); color: var(--danger); border: 1px solid var(--danger); }
+
+        /* Device Chip Style (New) */
+        .device-list { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; margin-bottom: 10px; max-height: 100px; overflow-y: auto; }
+        .device-chip { background: rgba(0, 242, 255, 0.1); border: 1px solid var(--primary); padding: 5px 10px; border-radius: 15px; font-size: 11px; display: flex; align-items: center; gap: 5px; color: white; }
+        .btn-remove-dev { cursor: pointer; color: var(--danger); font-weight: bold; }
+        .add-device-box { display: flex; gap: 5px; margin-bottom: 15px; }
+        .add-device-box input { flex: 1; }
+        .btn-mini-add { background: var(--success); border: none; padding: 0 15px; border-radius: 4px; font-weight: bold; cursor: pointer; }
 
         /* Modal */
         .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(5px); }
@@ -160,12 +169,13 @@
                     <tr>
                         <th>Email / User</th>
                         <th>Expiry Date</th>
+                        <th>Devices</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody id="userTableBody">
-                    <tr><td colspan="4" style="text-align: center;">Loading Data...</td></tr>
+                    <tr><td colspan="5" style="text-align: center;">Loading Data...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -173,17 +183,30 @@
 
     <div id="editModal" class="modal">
         <div class="modal-content">
-            <div class="modal-title">MANAGE USER</div>
+            <div class="modal-title">MANAGE ACCESS</div>
             <input type="hidden" id="editUid">
+            
             <div class="form-group">
                 <label>User Email</label>
                 <input type="text" id="editEmail" class="modal-input" readonly style="color: #777;">
             </div>
+            
             <div class="form-group">
                 <label>Set Expiry Date</label>
                 <input type="date" id="editDate" class="modal-input">
             </div>
-            <button class="btn-save" onclick="saveUserChanges()">UPDATE ACCESS</button>
+
+            <div class="form-group">
+                <label>Manage Devices (Add ID)</label>
+                <div class="add-device-box">
+                    <input type="text" id="newDeviceInput" class="modal-input" placeholder="Paste ID (e.g. DEV-X9...)">
+                    <button class="btn-mini-add" onclick="addNewDeviceID()"><i class="fa-solid fa-plus"></i></button>
+                </div>
+                <div id="deviceListContainer" class="device-list">
+                    </div>
+            </div>
+
+            <button class="btn-save" onclick="saveUserChanges()">UPDATE ALL CHANGES</button>
             <button class="btn-close" onclick="closeModal('editModal')">CANCEL</button>
         </div>
     </div>
@@ -227,12 +250,13 @@
         };
         // ========================================================
 
-        // Initialize Primary App (For Admin Login & DB)
+        // Initialize Primary App
         const primaryApp = firebase.initializeApp(firebaseConfig);
         const auth = primaryApp.auth();
         const db = primaryApp.firestore();
 
         let allUsers = [];
+        let currentEditingDevices = []; // Store devices temporarily while editing
 
         // 1. Admin Login
         function adminLogin() {
@@ -250,7 +274,6 @@
                 .catch((err) => { msg.innerText = "Login Failed: " + err.message; });
         }
 
-        // 2. Auth Listener
         auth.onAuthStateChanged((user) => {
             if (user) {
                 document.getElementById('adminLogin').style.display = 'none';
@@ -279,10 +302,19 @@
                         activeCount++;
                     }
 
+                    // Handle allowed_devices logic
+                    let deviceList = [];
+                    if (data.allowed_devices && Array.isArray(data.allowed_devices)) {
+                        deviceList = data.allowed_devices;
+                    } else if (data.device_id) {
+                        deviceList = [data.device_id]; // Fallback for old single users
+                    }
+
                     allUsers.push({
                         uid: doc.id,
                         email: data.email || "No Email",
                         expiryDate: data.expiryDate || "",
+                        devices: deviceList,
                         isExpired: isExpired
                     });
                 });
@@ -297,9 +329,9 @@
         function renderTable(users) {
             const tbody = document.getElementById('userTableBody');
             tbody.innerHTML = '';
-            if(users.length === 0) { tbody.innerHTML = '<tr><td colspan="4" align="center">No Users Found</td></tr>'; return; }
+            if(users.length === 0) { tbody.innerHTML = '<tr><td colspan="5" align="center">No Users Found</td></tr>'; return; }
 
-            users.forEach(user => {
+            users.forEach((user, index) => {
                 let badge = user.isExpired ? `<span class="badge badge-expired">EXPIRED</span>` : `<span class="badge badge-active">ACTIVE</span>`;
                 if(!user.expiryDate) badge = `<span class="badge badge-active" style="background:#0051ff20; color:#00f2ff;">LIFETIME</span>`;
 
@@ -307,9 +339,10 @@
                     <tr>
                         <td data-label="User">${user.email}</td>
                         <td data-label="Expiry">${user.expiryDate || "Lifetime"}</td>
+                        <td data-label="Devices" style="color: #ffd700; font-weight:bold;">${user.devices.length} Devices</td>
                         <td data-label="Status">${badge}</td>
                         <td data-label="Actions">
-                            <button class="btn-action btn-edit" onclick="openEdit('${user.uid}','${user.email}','${user.expiryDate}')"><i class="fa-solid fa-pen"></i></button>
+                            <button class="btn-action btn-edit" onclick="openEdit(${index})"><i class="fa-solid fa-pen"></i> EDIT</button>
                             <button class="btn-action btn-delete" onclick="deleteUser('${user.uid}')"><i class="fa-solid fa-trash"></i></button>
                         </td>
                     </tr>`;
@@ -321,22 +354,65 @@
             renderTable(allUsers.filter(u => u.email.toLowerCase().includes(val)));
         }
 
-        // 4. Edit User
-        function openEdit(uid, email, date) {
-            document.getElementById('editUid').value = uid;
-            document.getElementById('editEmail').value = email;
-            document.getElementById('editDate').value = date;
+        // 4. Edit User (Device Management)
+        function openEdit(index) {
+            let user = allUsers[index];
+            document.getElementById('editUid').value = user.uid;
+            document.getElementById('editEmail').value = user.email;
+            document.getElementById('editDate').value = user.expiryDate;
+            
+            // Load Devices into local variable
+            currentEditingDevices = [...user.devices]; 
+            renderDeviceManager();
+            
             document.getElementById('editModal').style.display = 'flex';
+        }
+
+        function renderDeviceManager() {
+            const container = document.getElementById('deviceListContainer');
+            container.innerHTML = '';
+            currentEditingDevices.forEach((dev, idx) => {
+                container.innerHTML += `
+                    <div class="device-chip">
+                        ${dev} 
+                        <span class="btn-remove-dev" onclick="removeDeviceFromList(${idx})">&times;</span>
+                    </div>`;
+            });
+        }
+
+        function addNewDeviceID() {
+            const input = document.getElementById('newDeviceInput');
+            const newId = input.value.trim();
+            if(newId) {
+                if(!currentEditingDevices.includes(newId)) {
+                    currentEditingDevices.push(newId);
+                    renderDeviceManager();
+                    input.value = '';
+                } else {
+                    alert("This Device ID is already added!");
+                }
+            }
+        }
+
+        function removeDeviceFromList(idx) {
+            currentEditingDevices.splice(idx, 1);
+            renderDeviceManager();
         }
 
         function saveUserChanges() {
             let uid = document.getElementById('editUid').value;
             let date = document.getElementById('editDate').value;
-            db.collection("users").doc(uid).update({ expiryDate: date })
-              .then(() => closeModal('editModal'));
+            
+            db.collection("users").doc(uid).update({ 
+                expiryDate: date,
+                allowed_devices: currentEditingDevices // Update the array
+            }).then(() => {
+                closeModal('editModal');
+                alert("User Updated Successfully!");
+            });
         }
 
-        // 5. CREATE NEW USER (The Magic Part)
+        // 5. CREATE NEW USER
         function openAddModal() {
             document.getElementById('newEmail').value = "";
             document.getElementById('newPass').value = "";
@@ -359,17 +435,16 @@
 
             secondaryApp.auth().createUserWithEmailAndPassword(email, pass)
                 .then((cred) => {
-                    // Created in Auth, now add to Firestore using PRIMARY app
                     return db.collection("users").doc(cred.user.uid).set({
                         email: email,
                         expiryDate: date,
-                        createdAt: new Date().toISOString()
+                        createdAt: new Date().toISOString(),
+                        allowed_devices: [] // Initialize empty array
                     });
                 })
                 .then(() => {
                     alert("User Created Successfully!");
                     closeModal('addUserModal');
-                    // Clean up secondary app
                     secondaryApp.delete(); 
                 })
                 .catch((error) => {
