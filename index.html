@@ -71,7 +71,7 @@
         th { background: rgba(0, 242, 255, 0.1); color: var(--primary); font-family: 'Rajdhani', sans-serif; text-transform: uppercase; font-size: 14px; letter-spacing: 1px; }
         td { font-size: 13px; color: #ddd; }
         
-        /* Device List in Table (NEW STYLE) */
+        /* Device List in Table */
         .table-dev-list { display: flex; flex-direction: column; gap: 5px; max-height: 100px; overflow-y: auto; }
         .table-dev-chip { 
             background: rgba(0, 0, 0, 0.3); 
@@ -167,7 +167,7 @@
 
         <div class="controls-bar">
             <div class="search-box">
-                <input type="text" id="searchInput" class="search-input" placeholder="Search by Email..." onkeyup="filterUsers()">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search by Email or Device ID..." onkeyup="filterUsers()">
             </div>
             <button class="btn-control btn-add" onclick="openAddModal()">
                 <i class="fa-solid fa-user-plus"></i> NEW USER
@@ -321,7 +321,7 @@
                     if (data.allowed_devices && Array.isArray(data.allowed_devices)) {
                         deviceList = data.allowed_devices;
                     } else if (data.device_id) {
-                        deviceList = [data.device_id]; // Fallback for old single users
+                        deviceList = [data.device_id]; 
                     }
 
                     allUsers.push({
@@ -349,7 +349,6 @@
                 let badge = user.isExpired ? `<span class="badge badge-expired">EXPIRED</span>` : `<span class="badge badge-active">ACTIVE</span>`;
                 if(!user.expiryDate) badge = `<span class="badge badge-active" style="background:#0051ff20; color:#00f2ff;">LIFETIME</span>`;
 
-                // --- CHANGED: Device Listing Logic ---
                 let devicesHtml = "";
                 if(user.devices.length > 0) {
                     devicesHtml = `<div class="table-dev-list">`;
@@ -360,7 +359,6 @@
                 } else {
                     devicesHtml = `<span style="opacity:0.3; font-size:12px;">No Devices</span>`;
                 }
-                // -------------------------------------
 
                 tbody.innerHTML += `
                     <tr>
@@ -376,10 +374,22 @@
             });
         }
 
+        // --- CHANGED: Search Logic for Device IDs ---
         function filterUsers() {
             let val = document.getElementById('searchInput').value.toLowerCase();
-            renderTable(allUsers.filter(u => u.email.toLowerCase().includes(val)));
+            
+            let filteredUsers = allUsers.filter(u => {
+                // Check if email matches
+                let emailMatch = u.email.toLowerCase().includes(val);
+                // Check if ANY device ID in the array matches
+                let deviceMatch = u.devices.some(dev => dev.toLowerCase().includes(val));
+                
+                return emailMatch || deviceMatch;
+            });
+            
+            renderTable(filteredUsers);
         }
+        // --------------------------------------------
 
         // 4. Edit User (Device Management)
         function openEdit(index) {
