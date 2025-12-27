@@ -15,7 +15,6 @@
             --secondary: #0051ff;
             --danger: #ff4d4d;
             --success: #00ff88;
-            --warning: #ffd700;
             --bg-dark: #050b14;
             --card-bg: rgba(10, 20, 35, 0.95);
             --border: rgba(0, 242, 255, 0.3);
@@ -72,19 +71,6 @@
         th { background: rgba(0, 242, 255, 0.1); color: var(--primary); font-family: 'Rajdhani', sans-serif; text-transform: uppercase; font-size: 14px; letter-spacing: 1px; }
         td { font-size: 13px; color: #ddd; }
         
-        /* Device List in Table */
-        .table-dev-list { display: flex; flex-direction: column; gap: 4px; max-height: 80px; overflow-y: auto; margin-top: 5px; }
-        .table-dev-chip { 
-            background: rgba(255, 255, 255, 0.05); 
-            border: 1px solid rgba(255,255,255,0.1); 
-            padding: 2px 6px; 
-            border-radius: 4px; 
-            font-size: 10px; 
-            color: #aaa;
-            font-family: monospace;
-            width: fit-content;
-        }
-
         /* Badges & Actions */
         .badge { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; text-transform: uppercase; }
         .badge-active { background: rgba(0, 255, 136, 0.15); color: var(--success); border: 1px solid var(--success); }
@@ -121,7 +107,6 @@
             tr { border: 1px solid rgba(0, 242, 255, 0.1); margin-bottom: 15px; border-radius: 8px; background: rgba(255,255,255,0.02); }
             td { border: none; position: relative; padding-left: 50%; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.02); }
             td:before { position: absolute; top: 15px; left: 15px; width: 45%; padding-right: 10px; white-space: nowrap; text-align: left; font-weight: bold; color: var(--text-muted); content: attr(data-label); }
-            .table-dev-list { justify-content: flex-end; align-items: flex-end; }
         }
 
         #adminLogin { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 2000; display: flex; justify-content: center; align-items: center; }
@@ -168,7 +153,7 @@
 
         <div class="controls-bar">
             <div class="search-box">
-                <input type="text" id="searchInput" class="search-input" placeholder="Search by Email or Device ID..." onkeyup="filterUsers()">
+                <input type="text" id="searchInput" class="search-input" placeholder="Search by Email..." onkeyup="filterUsers()">
             </div>
             <button class="btn-control btn-add" onclick="openAddModal()">
                 <i class="fa-solid fa-user-plus"></i> NEW USER
@@ -184,7 +169,7 @@
                     <tr>
                         <th>Email / User</th>
                         <th>Expiry Date</th>
-                        <th width="25%">Devices</th>
+                        <th>Allowed Devices</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -212,7 +197,7 @@
             </div>
 
             <div class="form-group">
-                <label>Manage Devices (Add ID)</label>
+                <label>Manage Devices (Add ID from WhatsApp)</label>
                 <div class="add-device-box">
                     <input type="text" id="newDeviceInput" class="modal-input" placeholder="Paste ID (e.g. DEV-X9...)">
                     <button class="btn-mini-add" onclick="addNewDeviceID()"><i class="fa-solid fa-plus"></i></button>
@@ -270,59 +255,29 @@
         const auth = primaryApp.auth();
         const db = primaryApp.firestore();
 
-        // 🟢 HARDCODED ADMIN CREDENTIALS
-        const ALLOWED_ADMIN_EMAIL = "suwahassathsara2006@gmail.com";
-        const ALLOWED_ADMIN_PASS = "Suwahas2006";
-
         let allUsers = [];
         let currentEditingDevices = []; 
 
-        // 1. Admin Login (SECURED)
+        // 1. Admin Login
         function adminLogin() {
-            const email = document.getElementById('adminEmail').value.trim();
-            const pass = document.getElementById('adminPass').value.trim();
+            const email = document.getElementById('adminEmail').value;
+            const pass = document.getElementById('adminPass').value;
             const msg = document.getElementById('loginMsg');
 
-            if(!email || !pass) { 
-                msg.innerText = "Please enter credentials"; 
-                return; 
-            }
+            if(!email || !pass) { msg.innerText = "Enter credentials"; return; }
 
-            // --- STRICT CHECK: Only allow specific hardcoded email/pass ---
-            if(email !== ALLOWED_ADMIN_EMAIL || pass !== ALLOWED_ADMIN_PASS) {
-                msg.innerText = "ACCESS DENIED: Invalid Admin Credentials";
-                return;
-            }
-
-            // If check passes, Proceed to Firebase Login
-            // Set Persistence to LOCAL (Keeps user logged in even after closing browser)
-            auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-                .then(() => {
-                    return auth.signInWithEmailAndPassword(email, pass);
-                })
+            auth.signInWithEmailAndPassword(email, pass)
                 .then(() => {
                     document.getElementById('adminLogin').style.display = 'none';
                     loadUsers();
                 })
-                .catch((err) => { 
-                    // Note: If the user doesn't exist in Firebase yet, this will fail.
-                    // You must create this user in Firebase Authentication manually first.
-                    msg.innerText = "System Error: " + err.message; 
-                });
+                .catch((err) => { msg.innerText = "Login Failed: " + err.message; });
         }
 
-        // 2. Auth State Listener (Auto-Login Check)
         auth.onAuthStateChanged((user) => {
             if (user) {
-                // Double check if the logged in user matches the allowed email
-                if(user.email === ALLOWED_ADMIN_EMAIL) {
-                    document.getElementById('adminLogin').style.display = 'none';
-                    loadUsers();
-                } else {
-                    // If some other user is logged in, kick them out
-                    auth.signOut();
-                    document.getElementById('adminLogin').style.display = 'flex';
-                }
+                document.getElementById('adminLogin').style.display = 'none';
+                loadUsers();
             } else {
                 document.getElementById('adminLogin').style.display = 'flex';
             }
@@ -352,7 +307,7 @@
                     if (data.allowed_devices && Array.isArray(data.allowed_devices)) {
                         deviceList = data.allowed_devices;
                     } else if (data.device_id) {
-                        deviceList = [data.device_id]; 
+                        deviceList = [data.device_id]; // Fallback for old single users
                     }
 
                     allUsers.push({
@@ -380,28 +335,11 @@
                 let badge = user.isExpired ? `<span class="badge badge-expired">EXPIRED</span>` : `<span class="badge badge-active">ACTIVE</span>`;
                 if(!user.expiryDate) badge = `<span class="badge badge-active" style="background:#0051ff20; color:#00f2ff;">LIFETIME</span>`;
 
-                // --- Device Count + List Display ---
-                let devCount = user.devices.length;
-                let countDisplay = `<div style="font-family:'Rajdhani',sans-serif; font-size:16px; font-weight:700; color:var(--warning); margin-bottom:4px;">
-                                        ${devCount} Active Device${devCount !== 1 ? 's' : ''}
-                                    </div>`;
-
-                let devicesHtml = "";
-                if(devCount > 0) {
-                    devicesHtml = `<div class="table-dev-list">`;
-                    user.devices.forEach(dev => {
-                        devicesHtml += `<div class="table-dev-chip">${dev}</div>`;
-                    });
-                    devicesHtml += `</div>`;
-                } else {
-                    devicesHtml = `<span style="opacity:0.3; font-size:11px;">No Access</span>`;
-                }
-
                 tbody.innerHTML += `
                     <tr>
                         <td data-label="User">${user.email}</td>
                         <td data-label="Expiry">${user.expiryDate || "Lifetime"}</td>
-                        <td data-label="Devices">${countDisplay}${devicesHtml}</td>
+                        <td data-label="Devices">${user.devices.length} Devices</td>
                         <td data-label="Status">${badge}</td>
                         <td data-label="Actions">
                             <button class="btn-action btn-edit" onclick="openEdit(${index})"><i class="fa-solid fa-pen"></i> EDIT</button>
@@ -413,14 +351,7 @@
 
         function filterUsers() {
             let val = document.getElementById('searchInput').value.toLowerCase();
-            
-            let filteredUsers = allUsers.filter(u => {
-                let emailMatch = u.email.toLowerCase().includes(val);
-                let deviceMatch = u.devices.some(dev => dev.toLowerCase().includes(val));
-                return emailMatch || deviceMatch;
-            });
-            
-            renderTable(filteredUsers);
+            renderTable(allUsers.filter(u => u.email.toLowerCase().includes(val)));
         }
 
         // 4. Edit User (Device Management)
@@ -499,6 +430,7 @@
 
             btn.innerText = "CREATING...";
 
+            // Use a Secondary App to create user without logging out Admin
             const secondaryApp = firebase.initializeApp(firebaseConfig, "Secondary");
 
             secondaryApp.auth().createUserWithEmailAndPassword(email, pass)
@@ -513,7 +445,7 @@
                 .then(() => {
                     alert("User Created Successfully!");
                     closeModal('addUserModal');
-                    secondaryApp.delete(); 
+                    secondaryApp.delete(); // Cleanup
                 })
                 .catch((error) => {
                     alert("Error: " + error.message);
