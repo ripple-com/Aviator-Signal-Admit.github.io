@@ -15,6 +15,7 @@
             --secondary: #0051ff;
             --danger: #ff4d4d;
             --success: #00ff88;
+            --warning: #ffd700;
             --bg-dark: #050b14;
             --card-bg: rgba(10, 20, 35, 0.95);
             --border: rgba(0, 242, 255, 0.3);
@@ -72,14 +73,14 @@
         td { font-size: 13px; color: #ddd; }
         
         /* Device List in Table */
-        .table-dev-list { display: flex; flex-direction: column; gap: 5px; max-height: 100px; overflow-y: auto; }
+        .table-dev-list { display: flex; flex-direction: column; gap: 4px; max-height: 80px; overflow-y: auto; margin-top: 5px; }
         .table-dev-chip { 
-            background: rgba(0, 0, 0, 0.3); 
-            border: 1px solid var(--text-muted); 
-            padding: 3px 8px; 
+            background: rgba(255, 255, 255, 0.05); 
+            border: 1px solid rgba(255,255,255,0.1); 
+            padding: 2px 6px; 
             border-radius: 4px; 
-            font-size: 11px; 
-            color: var(--primary);
+            font-size: 10px; 
+            color: #aaa;
             font-family: monospace;
             width: fit-content;
         }
@@ -183,7 +184,7 @@
                     <tr>
                         <th>Email / User</th>
                         <th>Expiry Date</th>
-                        <th width="30%">Device IDs</th>
+                        <th width="25%">Devices</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -349,22 +350,29 @@
                 let badge = user.isExpired ? `<span class="badge badge-expired">EXPIRED</span>` : `<span class="badge badge-active">ACTIVE</span>`;
                 if(!user.expiryDate) badge = `<span class="badge badge-active" style="background:#0051ff20; color:#00f2ff;">LIFETIME</span>`;
 
+                // --- CHANGED: Device Count + List Display ---
+                let devCount = user.devices.length;
+                let countDisplay = `<div style="font-family:'Rajdhani',sans-serif; font-size:16px; font-weight:700; color:var(--warning); margin-bottom:4px;">
+                                        ${devCount} Active Device${devCount !== 1 ? 's' : ''}
+                                    </div>`;
+
                 let devicesHtml = "";
-                if(user.devices.length > 0) {
+                if(devCount > 0) {
                     devicesHtml = `<div class="table-dev-list">`;
                     user.devices.forEach(dev => {
                         devicesHtml += `<div class="table-dev-chip">${dev}</div>`;
                     });
                     devicesHtml += `</div>`;
                 } else {
-                    devicesHtml = `<span style="opacity:0.3; font-size:12px;">No Devices</span>`;
+                    devicesHtml = `<span style="opacity:0.3; font-size:11px;">No Access</span>`;
                 }
+                // ---------------------------------------------
 
                 tbody.innerHTML += `
                     <tr>
                         <td data-label="User">${user.email}</td>
                         <td data-label="Expiry">${user.expiryDate || "Lifetime"}</td>
-                        <td data-label="Device IDs">${devicesHtml}</td>
+                        <td data-label="Devices">${countDisplay}${devicesHtml}</td>
                         <td data-label="Status">${badge}</td>
                         <td data-label="Actions">
                             <button class="btn-action btn-edit" onclick="openEdit(${index})"><i class="fa-solid fa-pen"></i> EDIT</button>
@@ -374,22 +382,17 @@
             });
         }
 
-        // --- CHANGED: Search Logic for Device IDs ---
         function filterUsers() {
             let val = document.getElementById('searchInput').value.toLowerCase();
             
             let filteredUsers = allUsers.filter(u => {
-                // Check if email matches
                 let emailMatch = u.email.toLowerCase().includes(val);
-                // Check if ANY device ID in the array matches
                 let deviceMatch = u.devices.some(dev => dev.toLowerCase().includes(val));
-                
                 return emailMatch || deviceMatch;
             });
             
             renderTable(filteredUsers);
         }
-        // --------------------------------------------
 
         // 4. Edit User (Device Management)
         function openEdit(index) {
