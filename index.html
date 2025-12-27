@@ -270,29 +270,59 @@
         const auth = primaryApp.auth();
         const db = primaryApp.firestore();
 
+        // 🟢 HARDCODED ADMIN CREDENTIALS
+        const ALLOWED_ADMIN_EMAIL = "suwahassathsara2006@gmail.com";
+        const ALLOWED_ADMIN_PASS = "Suwahas2006";
+
         let allUsers = [];
         let currentEditingDevices = []; 
 
-        // 1. Admin Login
+        // 1. Admin Login (SECURED)
         function adminLogin() {
-            const email = document.getElementById('adminEmail').value;
-            const pass = document.getElementById('adminPass').value;
+            const email = document.getElementById('adminEmail').value.trim();
+            const pass = document.getElementById('adminPass').value.trim();
             const msg = document.getElementById('loginMsg');
 
-            if(!email || !pass) { msg.innerText = "Enter credentials"; return; }
+            if(!email || !pass) { 
+                msg.innerText = "Please enter credentials"; 
+                return; 
+            }
 
-            auth.signInWithEmailAndPassword(email, pass)
+            // --- STRICT CHECK: Only allow specific hardcoded email/pass ---
+            if(email !== ALLOWED_ADMIN_EMAIL || pass !== ALLOWED_ADMIN_PASS) {
+                msg.innerText = "ACCESS DENIED: Invalid Admin Credentials";
+                return;
+            }
+
+            // If check passes, Proceed to Firebase Login
+            // Set Persistence to LOCAL (Keeps user logged in even after closing browser)
+            auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+                .then(() => {
+                    return auth.signInWithEmailAndPassword(email, pass);
+                })
                 .then(() => {
                     document.getElementById('adminLogin').style.display = 'none';
                     loadUsers();
                 })
-                .catch((err) => { msg.innerText = "Login Failed: " + err.message; });
+                .catch((err) => { 
+                    // Note: If the user doesn't exist in Firebase yet, this will fail.
+                    // You must create this user in Firebase Authentication manually first.
+                    msg.innerText = "System Error: " + err.message; 
+                });
         }
 
+        // 2. Auth State Listener (Auto-Login Check)
         auth.onAuthStateChanged((user) => {
             if (user) {
-                document.getElementById('adminLogin').style.display = 'none';
-                loadUsers();
+                // Double check if the logged in user matches the allowed email
+                if(user.email === ALLOWED_ADMIN_EMAIL) {
+                    document.getElementById('adminLogin').style.display = 'none';
+                    loadUsers();
+                } else {
+                    // If some other user is logged in, kick them out
+                    auth.signOut();
+                    document.getElementById('adminLogin').style.display = 'flex';
+                }
             } else {
                 document.getElementById('adminLogin').style.display = 'flex';
             }
@@ -350,7 +380,7 @@
                 let badge = user.isExpired ? `<span class="badge badge-expired">EXPIRED</span>` : `<span class="badge badge-active">ACTIVE</span>`;
                 if(!user.expiryDate) badge = `<span class="badge badge-active" style="background:#0051ff20; color:#00f2ff;">LIFETIME</span>`;
 
-                // --- CHANGED: Device Count + List Display ---
+                // --- Device Count + List Display ---
                 let devCount = user.devices.length;
                 let countDisplay = `<div style="font-family:'Rajdhani',sans-serif; font-size:16px; font-weight:700; color:var(--warning); margin-bottom:4px;">
                                         ${devCount} Active Device${devCount !== 1 ? 's' : ''}
@@ -366,7 +396,6 @@
                 } else {
                     devicesHtml = `<span style="opacity:0.3; font-size:11px;">No Access</span>`;
                 }
-                // ---------------------------------------------
 
                 tbody.innerHTML += `
                     <tr>
